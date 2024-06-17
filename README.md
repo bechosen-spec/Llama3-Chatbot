@@ -82,7 +82,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any questions or suggestions, please reach out to [Boniface Emmanuel](https://www.linkedin.com/in/emmanuel-boniface/).
 
----
 
 Thank you for using the Llama 3 Chatbot! Happy chatting! 🦙💬
-```
+
