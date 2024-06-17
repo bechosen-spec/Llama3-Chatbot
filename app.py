@@ -4,13 +4,15 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 
 st.set_page_config(page_title="🦙💬 Llama 3 Chatbot with Streamlit")
 
-# Load model directly without caching for debugging purposes
+@st.cache_resource
 def get_tokenizer_model():
     try:
         # Create tokenizer
         model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # Replace with the actual model ID
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(model_id, device_map={"": 0})
+        hf_token = "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"  # Replace with your Hugging Face API token
+
+        tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=hf_token)
+        model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=hf_token, device_map={"": 0})
         return tokenizer, model
     except Exception as e:
         st.error(f"Error loading model: {e}")
