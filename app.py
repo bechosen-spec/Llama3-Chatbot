@@ -3,7 +3,7 @@ import torch
 import requests
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TextStreamer
 
-st.set_page_config(page_title="🦙💬 Llama 2 Chatbot with Streamlit")
+st.set_page_config(page_title="🦙💬 Llama 3 Chatbot with Streamlit")
 
 @st.cache_resource
 def get_tokenizer_model():
