@@ -8,8 +8,8 @@ st.set_page_config(page_title="🦙💬 Llama 3 Chatbot with Streamlit")
 def get_tokenizer_model():
     try:
         # Create tokenizer
-        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # Replace with the actual model ID
-        hf_token = "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"  # Replace with your Hugging Face API token
+        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # actual model ID
+        hf_token = "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"  # Hugging Face API token
 
         tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=hf_token)
         model = AutoModelForCausalLM.from_pretrained(model_id, use_auth_token=hf_token, device_map={"": 0})
@@ -50,15 +50,11 @@ def main():
             [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}], add_generation_prompt=True, return_tensors="pt"
         ).to(runtime_flag)
 
-        # Define termination conditions
-        terminators = [tokenizer.eos_token_id,
-                       tokenizer.convert_tokens_to_ids("")]
-
         # Generate text using the model and streamer
         outputs = model.generate(
             input_ids,
             max_new_tokens=2056,  # Adjust as needed
-            eos_token_id=terminators,
+            eos_token_id=tokenizer.eos_token_id,
             do_sample=True,
             streamer=text_streamer
         )
@@ -80,21 +76,14 @@ def main():
         with st.chat_message("user"):
             st.write(prompt)
 
-    # Generate Llama 3 response if the last message is not from the assistant
-    if st.session_state.messages[-1]["role"] != "assistant":
+        # Generate Llama 3 response if the last message is not from the assistant
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = generate_llama3_response(prompt, system_prompt)
-                placeholder = st.empty()
-                full_response = ''
-                for item in response:
-                    full_response += item
-                    placeholder.markdown(full_response)
-                placeholder.markdown(full_response)
+                st.write(response)
 
-        # Store the assistant's response in the chat messages
-        message = {"role": "assistant", "content": full_response}
-        st.session_state.messages.append(message)
+            # Store the assistant's response in the chat messages
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
     # Button to clear chat history
     def clear_chat_history():
