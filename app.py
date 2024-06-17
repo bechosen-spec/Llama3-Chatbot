@@ -1,24 +1,16 @@
 import streamlit as st
 import torch
 import requests
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, TextStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 
 st.set_page_config(page_title="🦙💬 Llama 3 Chatbot with Streamlit")
 
 @st.cache_resource
 def get_tokenizer_model():
-    # Create tokenizer
+    # Load tokenizer and model directly
     model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # Replace with the actual model ID
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16
-    )
-
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id, quantization_config=bnb_config, device_map={"": 0})
+    model = AutoModelForCausalLM.from_pretrained(model_id, device_map={"": 0})
 
     return tokenizer, model
 
@@ -34,13 +26,12 @@ def main():
         # User inputs for system prompts
         system_prompt = st.text_input("Enter System Prompt")
 
-    
     # Initialize chat messages session state if not present
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {"role": "assistant", "content": "How may I assist you today?"}]
 
-    def generate_llama2_response(user_prompt, system_prompt):
+    def generate_llama3_response(user_prompt, system_prompt):
         runtime_flag = "cuda:0"
 
         # Create TextStreamer for efficient memory handling during generation
@@ -82,11 +73,11 @@ def main():
         with st.chat_message("user"):
             st.write(prompt)
 
-    # Generate Llama 2 response if the last message is not from the assistant
+    # Generate Llama 3 response if the last message is not from the assistant
     if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = generate_llama2_response(prompt, system_prompt)
+                response = generate_llama3_response(prompt, system_prompt)
                 placeholder = st.empty()
                 full_response = ''
                 for item in response:
@@ -101,7 +92,7 @@ def main():
     # Button to clear chat history
     def clear_chat_history():
         st.session_state.messages = [
-            {"role": "assistant", "content": "How may I assist you today"}]
+            {"role": "assistant", "content": "How may I assist you today?"}]
 
     st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
