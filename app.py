@@ -1,20 +1,25 @@
 import streamlit as st
 import torch
-import requests
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 
 st.set_page_config(page_title="🦙💬 Llama 3 Chatbot with Streamlit")
 
-@st.cache_resource
+# Load model directly without caching for debugging purposes
 def get_tokenizer_model():
-    # Load tokenizer and model directly
-    model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # Replace with the actual model ID
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id, device_map={"": 0})
-
-    return tokenizer, model
+    try:
+        # Create tokenizer
+        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"  # Replace with the actual model ID
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(model_id, device_map={"": 0})
+        return tokenizer, model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None, None
 
 tokenizer, model = get_tokenizer_model()
+
+if tokenizer is None or model is None:
+    st.stop()
 
 def main():
     st.title('Boniface Emmanuel ChatBot')
